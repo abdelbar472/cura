@@ -1,0 +1,16 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+pydantic==2.9.2
+pydantic-settings==2.15.0
+langgraph==1.2.11
+aiokafka==0.14.0
+
+# Test-only
+pytest==9.1.1
+httpx==0.27.0
+
+# Optional: scispaCy-backed entity extraction. The lexicon fallback works
+# without these. Install the model separately:
+#   pip install spacy
+#   pip install https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/en_core_sci_sm-0.5.4.tar.gz
+# spacy==3.8.7

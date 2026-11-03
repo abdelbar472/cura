@@ -1,0 +1,79 @@
+# Cura API scratch requests
+# Start the server with: uvicorn app.main:app --reload
+
+GET http://127.0.0.1:8000/
+Accept: application/json
+
+###
+
+GET http://127.0.0.1:8000/healthz
+Accept: application/json
+
+###
+
+GET http://127.0.0.1:8000/v1/agents
+Accept: application/json
+
+###
+
+GET http://127.0.0.1:8000/v1/knowledge/conditions
+Accept: application/json
+
+###
+
+POST http://127.0.0.1:8000/v1/cases
+Content-Type: application/json
+
+{
+  "text": "Dysuria, urinary frequency and fever for two days. Denies chest pain.",
+  "patient": {"age_years": 34, "sex": "female"},
+  "labs": [
+    {"name": "WBC", "value": 15.2, "unit": "10^9/L"},
+    {"name": "CRP", "value": 48.0, "unit": "mg/L"}
+  ],
+  "medications": [
+    {"name": "Ibuprofen 400 mg"},
+    {"name": "Coumadin 5 mg"}
+  ],
+  "client_reference": "ED-1001"
+}
+
+###
+
+POST http://127.0.0.1:8000/v1/cases
+Content-Type: application/json
+
+{
+  "text": "Crushing chest pain with sweating and shortness of breath.",
+  "patient": {"age_years": 67, "sex": "male"},
+  "labs": [
+    {"name": "troponin", "value": 0.5, "unit": "ng/mL"}
+  ],
+  "imaging": {
+    "modality": "xray",
+    "body_site": "chest",
+    "clinical_question": "Acute infiltrate?"
+  }
+}
+
+###
+
+POST http://127.0.0.1:8000/v1/agents/symptom
+Content-Type: application/json
+
+{
+  "text": "Headache with photophobia, nausea and vomiting.",
+  "backend": "lexicon"
+}
+
+###
+
+POST http://127.0.0.1:8000/v1/agents/drugs
+Content-Type: application/json
+
+{
+  "medications": [
+    {"name": "Viagra"},
+    {"name": "nitroglycerin"}
+  ]
+}
