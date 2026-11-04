@@ -122,11 +122,14 @@ async def test_store_factory_degrades_when_postgres_is_unreachable():
             Settings(
                 environment="test",
                 store_backend="postgres",
-                database_url="postgresql+psycopg://cura:cura@127.0.0.1:1/cura",
+                database_url=(
+                    "postgresql+psycopg://cura:cura@127.0.0.1:1/cura"
+                    "?connect_timeout=2"
+                ),
                 ml_enabled=False,
             )
         ),
-        timeout=20,
+        timeout=10,
     )
     assert isinstance(store, MemoryCaseStore)
     assert store.backend == "memory"
@@ -178,9 +181,9 @@ async def test_postgres_store_roundtrip_and_idempotent_save():
         assert any(item.result.case_id == case_id for item in summaries)
     finally:
         if store._engine is not None:
-            async with store._engine.begin() as connection:
-                await connection.execute(delete(EventRow).where(EventRow.case_id == case_id))
-                await connection.execute(delete(CaseRow).where(CaseRow.case_id == case_id))
+            with store._engine.begin() as connection:
+                connection.execute(delete(EventRow).where(EventRow.case_id == case_id))
+                connection.execute(delete(CaseRow).where(CaseRow.case_id == case_id))
         await store.close()
 
 

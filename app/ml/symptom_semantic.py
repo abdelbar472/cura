@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import re
+import threading
 from dataclasses import dataclass
 
 import numpy as np
@@ -49,6 +50,7 @@ class SymptomSemanticModel:
         self._enabled = enabled
         self._catalog: np.ndarray | None = None
         self._failed = False
+        self._lock = threading.RLock()
 
     @property
     def info(self) -> ModelInfo:
@@ -68,15 +70,20 @@ class SymptomSemanticModel:
             return True
         if not self._enabled or self._failed:
             return False
-        try:
-            self._catalog = self._embeddings.encode(
-                [concept_description(concept) for concept in SYMPTOM_CONCEPTS]
-            )
-            return True
-        except Exception as exc:  # pragma: no cover - model download dependent
-            self._failed = True
-            logger.warning("Symptom semantic model unavailable: %s", exc)
-            return False
+        with self._lock:
+            if self._catalog is not None:
+                return True
+            if self._failed:
+                return False
+            try:
+                self._catalog = self._embeddings.encode(
+                    [concept_description(concept) for concept in SYMPTOM_CONCEPTS]
+                )
+                return True
+            except Exception as exc:  # pragma: no cover - model download dependent
+                self._failed = True
+                logger.warning("Symptom semantic model unavailable: %s", exc)
+                return False
 
     def match(self, text: str) -> list[SemanticMatch]:
         if not self._enabled or not text.strip() or not self._ensure_catalog():
